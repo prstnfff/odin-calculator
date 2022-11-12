@@ -1,9 +1,10 @@
 
 resultBox = document.querySelector('.result-box')
+decimalButton = document.querySelector('.decimal-button')
 
 let currentResult = {value: 0, valid: false}
 let currentNum = {value: 0, valid: false}
-let liveCalc = false;
+let lastOperand = ''
 
 function operate(operand, num1, num2){
 
@@ -41,13 +42,14 @@ document.querySelectorAll('.button')
                 
                 if(!currentNum['valid']){
                     resultBox.innerHTML = event.target.innerHTML
+                    decimalButton.removeAttribute('disabled')
 
                 } else {
 
                     resultBox.innerHTML += event.target.innerHTML
                 }
                 
-                currentNum = {value: Number.parseDecimal(resultBox.innerHTML), valid: true}
+                currentNum = {value: Number.parseFloat(resultBox.innerHTML), valid: true}
             })
         })
 
@@ -56,24 +58,26 @@ document.querySelector('.clear-button')
             resultBox.innerHTML = ""
             currentNum = {value: 0, valid: false}
             currentResult = {value: 0, valid: false}
+            decimalButton.removeAttribute('disabled')
         })
 
 document.querySelectorAll('.op-button')
         .forEach( btn => {
             btn.addEventListener( 'click', event => {
                 
-               lastOperand = event.target.innerHTML
-
+    
                if(currentResult['valid'] && currentNum['valid']){
                 
                     newNum = operate(lastOperand,  currentResult['value'], currentNum['value'])
                     currentResult = {value: newNum, valid: true}
                     currentNum    = {value: 0, valid: false}
                     resultBox.innerHTML = currentResult['value']
+                    decimalButton.removeAttribute('disabled')
 
                } else if(currentResult['valid'] && !currentNum['valid']) {
                 
                     resultBox.innerHTML = currentResult['value']
+                    decimalButton.removeAttribute('disabled')
 
                } else if(!currentResult['valid'] && currentNum['valid']) {
 
@@ -86,6 +90,8 @@ document.querySelectorAll('.op-button')
 
                }
 
+               lastOperand = event.target.innerHTML
+
             })
         })
 
@@ -96,23 +102,13 @@ document.querySelector('.calc-button').addEventListener('click', event => {
         currentResult = {value: operate(lastOperand, currentResult['value'], currentNum['value']), valid: true}
 
         currentNum = {value: 0, valid: false}
-
-        console.log(currentResult)
     
         resultBox.innerHTML = currentResult['value'];
     }
     })
 
-document.querySelector('.calc-button').addEventListener('click', event => {
+document.querySelector('.decimal-button').addEventListener('click', event => {
 
-        if( currentNum['valid'] && currentResult['valid']){
-    
-            currentResult = {value: operate(lastOperand, currentResult['value'], currentNum['value']), valid: true}
-    
-            currentNum = {value: 0, valid: false}
-    
-            console.log(currentResult)
-        
-            resultBox.innerHTML = currentResult['value'];
-        }
-        })
+    event.target.setAttribute('disabled', 'true')
+
+    })
