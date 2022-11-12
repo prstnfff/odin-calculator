@@ -1,89 +1,118 @@
 
 resultBox = document.querySelector('.result-box')
 
-let currentResult = 0;
-let currentNum = 0;
-let postOperandClick = false;
-let enteredNums = 0;
-let lastOperand = ''
+let currentResult = {value: 0, valid: false}
+let currentNum = {value: 0, valid: false}
+let liveCalc = false;
 
 function operate(operand, num1, num2){
 
+    let result = 0;
 
     if(operand === '+'){
 
-        return(num1 + num2)
+        result = num1 + num2
 
     } else if (operand === '-'){
 
-        return(num1 - num2)
+        result = num1 - num2
 
     } else if (operand === '*'){
 
-        return(num1 * num2)
+        result = num1 * num2
         
     } else if (operand === '/'){
 
-        return(num1 / num2)
+        if(num2 === 0){
+            return(":/ --- try again")
+        }
+
+        result =num1 / num2
         
     }
-}
 
-function getNum(){
-    
-    currentNum = Number.parseInt(resultBox.innerHTML)
+    return(Math.round(result * 100) / 100)
+
 }
 
 document.querySelectorAll('.button')
         .forEach( btn => {
-            btn.addEventListener( 'click', event => {
-                if(postOperandClick){
-                    resultBox.innerHTML = ''
-                    postOperandClick = false
-                }
-                    
-            resultBox.innerHTML += event.target.innerHTML
+            btn.addEventListener( 'click', event => { 
+                
+                if(!currentNum['valid']){
+                    resultBox.innerHTML = event.target.innerHTML
 
+                } else {
+
+                    resultBox.innerHTML += event.target.innerHTML
+                }
+                
+                currentNum = {value: Number.parseDecimal(resultBox.innerHTML), valid: true}
             })
         })
 
 document.querySelector('.clear-button')
         .addEventListener( 'click', event => {
             resultBox.innerHTML = ""
-            liveCalc = false;
-            enteredNums = 0;
-            currentNum = 0;
-            currentResult = 0;
+            currentNum = {value: 0, valid: false}
+            currentResult = {value: 0, valid: false}
         })
 
 document.querySelectorAll('.op-button')
         .forEach( btn => {
             btn.addEventListener( 'click', event => {
+                
+               lastOperand = event.target.innerHTML
 
-                if(enteredNums === 0){
-                    getNum()
-                    currentResult = currentNum
-                }
+               if(currentResult['valid'] && currentNum['valid']){
+                
+                    newNum = operate(lastOperand,  currentResult['value'], currentNum['value'])
+                    currentResult = {value: newNum, valid: true}
+                    currentNum    = {value: 0, valid: false}
+                    resultBox.innerHTML = currentResult['value']
 
-                if(enteredNums > 0){
-                    getNum()
-                    currentResult = operate(event.target.innerHTML, currentResult, currentNum)
-                    resultBox.innerHTML = currentResult
-                }
-                enteredNums += 1
-                postOperandClick = true;
-                console.log('operator clicked')
+               } else if(currentResult['valid'] && !currentNum['valid']) {
+                
+                    resultBox.innerHTML = currentResult['value']
 
-                lastOperand = event.target.innerHTML
+               } else if(!currentResult['valid'] && currentNum['valid']) {
+
+                    currentResult = {value: currentNum['value'], valid: true}
+                    currentNum    = {value: 0, valid: false}
+
+               } else if(!currentResult['valid'] && !currentNum['valid']){
+
+                    console.log("We shouldn't be here")
+
+               }
+
             })
         })
 
 document.querySelector('.calc-button').addEventListener('click', event => {
-        getNum()
-        currentResult = operate(lastOperand, currentResult, currentNum)
-        currentNum = 0;
-        resultBox.innerHTML = currentResult
-        enteredNums += 1
-        postOperandClick = true;
-        lastOperand = ''
+
+    if( currentNum['valid'] && currentResult['valid']){
+
+        currentResult = {value: operate(lastOperand, currentResult['value'], currentNum['value']), valid: true}
+
+        currentNum = {value: 0, valid: false}
+
+        console.log(currentResult)
+    
+        resultBox.innerHTML = currentResult['value'];
+    }
     })
+
+document.querySelector('.calc-button').addEventListener('click', event => {
+
+        if( currentNum['valid'] && currentResult['valid']){
+    
+            currentResult = {value: operate(lastOperand, currentResult['value'], currentNum['value']), valid: true}
+    
+            currentNum = {value: 0, valid: false}
+    
+            console.log(currentResult)
+        
+            resultBox.innerHTML = currentResult['value'];
+        }
+        })
